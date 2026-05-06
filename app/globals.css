@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-ink-50 text-ink-900 antialiased;
+  background-image:
+    radial-gradient(60rem 60rem at 110% -10%, rgba(99, 102, 241, 0.08), transparent 60%),
+    radial-gradient(40rem 40rem at -10% 110%, rgba(16, 185, 129, 0.06), transparent 60%);
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    @apply bg-ink-950 text-ink-100;
+    background-image:
+      radial-gradient(60rem 60rem at 110% -10%, rgba(99, 102, 241, 0.10), transparent 60%),
+      radial-gradient(40rem 40rem at -10% 110%, rgba(16, 185, 129, 0.07), transparent 60%);
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { @apply bg-ink-300/60 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-ink-400/80; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Markdown-ish content rendering for assistant messages */
+.prose-msg p { @apply leading-relaxed; }
+.prose-msg p + p { @apply mt-3; }
+.prose-msg ul { @apply list-disc pl-5 space-y-1 mt-2; }
+.prose-msg ol { @apply list-decimal pl-5 space-y-1 mt-2; }
+.prose-msg code {
+  @apply font-mono text-[0.85em] px-1 py-0.5 rounded bg-ink-200/60 dark:bg-ink-800/60;
+}
