@@ -4,6 +4,8 @@
 
 :root {
   color-scheme: light dark;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
 html,
@@ -13,31 +15,71 @@ body {
 
 body {
   @apply bg-ink-50 text-ink-900 antialiased;
-  background-image:
-    radial-gradient(60rem 60rem at 110% -10%, rgba(99, 102, 241, 0.08), transparent 60%),
-    radial-gradient(40rem 40rem at -10% 110%, rgba(16, 185, 129, 0.06), transparent 60%);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
 @media (prefers-color-scheme: dark) {
   body {
     @apply bg-ink-950 text-ink-100;
-    background-image:
-      radial-gradient(60rem 60rem at 110% -10%, rgba(99, 102, 241, 0.10), transparent 60%),
-      radial-gradient(40rem 40rem at -10% 110%, rgba(16, 185, 129, 0.07), transparent 60%);
   }
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-thumb { @apply bg-ink-300/60 rounded-full; }
-::-webkit-scrollbar-thumb:hover { @apply bg-ink-400/80; }
-::-webkit-scrollbar-track { background: transparent; }
+::selection {
+  background: theme("colors.accent.200");
+  color: theme("colors.ink.900");
+}
 
-/* Markdown-ish content rendering for assistant messages */
-.prose-msg p { @apply leading-relaxed; }
-.prose-msg p + p { @apply mt-3; }
-.prose-msg ul { @apply list-disc pl-5 space-y-1 mt-2; }
-.prose-msg ol { @apply list-decimal pl-5 space-y-1 mt-2; }
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-ink-300 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-ink-400;
+}
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb {
+    @apply bg-ink-700;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-ink-600;
+  }
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.prose-msg {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+}
+.prose-msg p + p,
+.prose-msg ul + p,
+.prose-msg ol + p {
+  margin-top: 0.75rem;
+}
+.prose-msg ul {
+  @apply list-disc pl-5 space-y-1 my-2;
+}
+.prose-msg ol {
+  @apply list-decimal pl-5 space-y-1 my-2;
+}
+.prose-msg h1,
+.prose-msg h2,
+.prose-msg h3 {
+  @apply font-semibold mt-3 mb-1;
+}
 .prose-msg code {
-  @apply font-mono text-[0.85em] px-1 py-0.5 rounded bg-ink-200/60 dark:bg-ink-800/60;
+  @apply font-mono text-[0.85em] px-1 py-0.5 rounded bg-ink-100 dark:bg-ink-800;
+}
+.prose-msg pre {
+  @apply font-mono text-[0.85em] leading-relaxed rounded-lg bg-ink-900 text-ink-100 p-3 my-3 overflow-x-auto;
+}
+.prose-msg pre code {
+  @apply bg-transparent p-0;
+}
+.prose-msg a {
+  @apply text-accent-600 dark:text-accent-400 underline underline-offset-2;
 }

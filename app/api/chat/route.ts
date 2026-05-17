@@ -2,7 +2,12 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { NextResponse } from "next/server";
 import { env } from "@/lib/env";
-import { formatContext, retrieveContext } from "@/lib/rag/pipeline";
+import { formatContext } from "@/lib/rag/pipeline";
+import {
+  retrieveBasic,
+  retrieveCorrective,
+  type RetrievalMode,
+} from "@/lib/rag/retrieval";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -41,13 +46,18 @@ function lastUserText(messages: UIMessage[]): string {
 
 export async function POST(req: Request) {
   try {
-    let body: { messages?: UIMessage[]; documentId?: string; filename?: string };
+    let body: {
+      messages?: UIMessage[];
+      documentId?: string;
+      filename?: string;
+      mode?: RetrievalMode;
+    };
     try {
       body = await req.json();
     } catch {
       return NextResponse.json({ error: "Expected JSON body." }, { status: 400 });
     }
-    const { messages, documentId, filename } = body;
+    const { messages, documentId, filename, mode } = body;
 
     if (!messages?.length || !documentId) {
       return NextResponse.json(
@@ -61,8 +71,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No user message to answer." }, { status: 400 });
     }
 
-    const retrieved = await retrieveContext(documentId, query);
-    const system = buildSystemPrompt(filename || "the document", formatContext(retrieved));
+    const retrieval =
+      mode === "corrective"
+        ? await retrieveCorrective(documentId, query)
+        : await retrieveBasic(documentId, query);
+
+    const system = buildSystemPrompt(
+      filename || "the document",
+      formatContext(retrieval.chunks),
+    );
 
     const modelMessages = await convertToModelMessages(messages);
     const result = streamText({
@@ -72,16 +89,23 @@ export async function POST(req: Request) {
       temperature: 0.2,
     });
 
-    const sources = retrieved.map((c, i) => ({
+    const sources = retrieval.chunks.map((c, i) => ({
       n: i + 1,
       page: c.page,
       score: Number(c.score.toFixed(3)),
       excerpt: c.text.slice(0, 240),
+      grade: c.grade,
     }));
 
+    const trace = {
+      mode: retrieval.mode,
+      correctionTriggered: retrieval.correctionTriggered,
+      steps: retrieval.steps,
+    };
+
     return result.toUIMessageStreamResponse({
-      // Attach citations once at stream start so the UI can render them.
-      messageMetadata: ({ part }) => (part.type === "start" ? { sources } : undefined),
+      messageMetadata: ({ part }) =>
+        part.type === "start" ? { sources, trace } : undefined,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Chat failed";

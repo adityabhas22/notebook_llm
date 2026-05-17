@@ -9,47 +9,51 @@ export default function Home() {
   const [doc, setDoc] = useState<IngestedDoc | null>(null);
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-5xl flex-col px-4 sm:px-6 lg:px-8">
-      <header className="flex items-center justify-between py-5">
-        <div className="flex items-center gap-2.5">
-          <div className="rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 p-2 text-white shadow-sm">
-            <BookText className="h-5 w-5" />
-          </div>
-          <div>
-            <div className="text-base font-semibold tracking-tight">NotebookLM RAG</div>
-            <div className="text-xs text-ink-500 dark:text-ink-400">
-              Upload a document, chat with its actual contents
+    <div className="flex h-dvh flex-col bg-ink-50 dark:bg-ink-950">
+      <header className="sticky top-0 z-20 border-b border-ink-200 bg-white/85 backdrop-blur-md dark:border-ink-800 dark:bg-ink-950/85">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-accent-500 to-accent-700 text-white shadow-soft">
+              <BookText className="h-4.5 w-4.5" strokeWidth={2.25} />
+            </div>
+            <div>
+              <div className="text-[15px] font-semibold tracking-tight text-ink-900 dark:text-ink-50">
+                NotebookLM RAG
+              </div>
+              <div className="text-xs text-ink-500 dark:text-ink-400">
+                Upload a document, chat with its contents
+              </div>
             </div>
           </div>
+          {doc && (
+            <div className="flex items-center gap-2 text-xs">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse-dot" />
+              <span className="text-ink-600 dark:text-ink-300">
+                Indexed · {doc.chunkCount} chunks
+              </span>
+            </div>
+          )}
         </div>
-        {doc && (
-          <div className="hidden items-center gap-2 text-xs text-ink-500 dark:text-ink-400 sm:flex">
-            <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
-            Indexed · {doc.chunkCount} chunks
-          </div>
-        )}
       </header>
 
-      <section className="mb-4">
-        <Uploader doc={doc} onIngested={setDoc} onClear={() => setDoc(null)} />
-      </section>
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col overflow-hidden px-4 sm:px-6 lg:px-8">
+        <div className="pt-4 pb-3">
+          <Uploader doc={doc} onIngested={setDoc} onClear={() => setDoc(null)} />
+        </div>
 
-      <section className="flex-1 min-h-[60vh]">
-        {doc ? (
-          <Chat doc={doc} />
-        ) : (
-          <div className="flex h-full flex-col items-center justify-center text-center text-ink-500 dark:text-ink-400 py-12">
-            <p className="max-w-md text-sm">
-              Upload a PDF or text file to start. Your document is chunked, embedded with
-              OpenAI, stored in Qdrant, and queried with RAG so answers stay grounded in the source.
-            </p>
-          </div>
-        )}
-      </section>
-
-      <footer className="py-4 text-center text-xs text-ink-400 dark:text-ink-500">
-        RAG pipeline: parse → chunk → embed → Qdrant → retrieve → generate
-      </footer>
-    </main>
+        <div className="flex-1 overflow-hidden">
+          {doc ? (
+            <Chat doc={doc} />
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center text-center">
+              <p className="max-w-md text-sm text-ink-600 dark:text-ink-300">
+                Drop in a PDF or text file. It gets chunked, embedded with OpenAI,
+                stored in Qdrant, and answered with grounded retrieval.
+              </p>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
   );
 }
